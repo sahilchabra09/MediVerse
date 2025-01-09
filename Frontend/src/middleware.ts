@@ -1,27 +1,19 @@
-import { NextResponse, NextRequest } from "next/server";
-import { getAuth } from "@clerk/nextjs/server";
+import { clerkMiddleware } from "@clerk/nextjs/server";
+import { NextResponse } from "next/server";
 
-export default function middleware(req: NextRequest) {
-  const { userId, sessionClaims } = getAuth(req);
-
-  if (!userId) {
-    return NextResponse.redirect("/sign-in"); // Redirect unauthenticated users
+export default clerkMiddleware(async (auth, req) => {
+  if (req.nextUrl.pathname === "/" || 
+      req.nextUrl.pathname.startsWith("/sign-in") ||
+      req.nextUrl.pathname.startsWith("/sign-up") ||
+      req.nextUrl.pathname.startsWith("/api/") ||
+      req.nextUrl.pathname === "/UserTypeSelection") {
+    return NextResponse.next();
   }
-
-  const role = sessionClaims?.role;
-
-  if (req.nextUrl.pathname === "/dashboard") {
-    // Redirect based on role
-    if (role === "doctor") {
-      return NextResponse.redirect("/doc-dashboard");
-    } else if (role === "member") {
-      return NextResponse.redirect("/user-dashboard");
-    }
-  }
-
-  return NextResponse.next();
-}
+  
+  const session = await auth();
+  return session ? NextResponse.next() : NextResponse.redirect(new URL('/sign-in', req.url));
+});
 
 export const config = {
-  matcher: ["/dashboard"],
+  matcher: ['/((?!.+\\.[\\w]+$|_next).*)', '/', '/(api|trpc)(.*)'],
 };

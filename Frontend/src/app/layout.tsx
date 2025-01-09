@@ -34,16 +34,11 @@ export default function RootLayout({
 }>) {
   return (
     <ClerkProvider>
-    <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        <AuthenticateWithRedirectCallback />
-        <ResponseProvider>
+      <html lang="en">
+        <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
           {children}
-        </ResponseProvider>
-      </body>
-    </html>
-     </ClerkProvider>
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }

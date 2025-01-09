@@ -13,8 +13,10 @@ import {
 import Link from "next/link";
 import { motion } from "framer-motion";
 import Image from "next/image";
+import { SignOutButton, useUser } from "@clerk/nextjs";
 
 export function SidebarDash({ currentPath }: { currentPath: string }) {
+  const { user } = useUser();
   const links = [
     {
       label: "Home",
@@ -32,7 +34,7 @@ export function SidebarDash({ currentPath }: { currentPath: string }) {
     },
     {
       label: "Hospitals Near Me",
-      href: "/nearby-hospitals",
+      href: "/hospital-near-me",
       icon: (
         <IconHeart className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
       ),
@@ -60,7 +62,7 @@ export function SidebarDash({ currentPath }: { currentPath: string }) {
     },
     {
       label: "Logout",
-      href: "/",
+      href: "/logout",
       icon: (
         <IconArrowLeft className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
       ),
@@ -85,21 +87,23 @@ export function SidebarDash({ currentPath }: { currentPath: string }) {
             </div>
           </div>
           <div>
-            <SidebarLink
-              link={{
-                label: "Sahil Chabra",
-                href: "#",
-                icon: (
-                  <Image
-                    src="https://assets.aceternity.com/manu.png"
-                    className="h-7 w-7 flex-shrink-0 rounded-full"
-                    width={50}
-                    height={50}
-                    alt="Avatar"
-                  />
-                ),
-              }}
-            />
+            <SignOutButton>
+              <SidebarLink
+                link={{
+                  label: user?.fullName || "User",
+                  href: "#",
+                  icon: (
+                    <Image
+                      src={user?.imageUrl || "https://via.placeholder.com/50"}
+                      className="h-7 w-7 flex-shrink-0 rounded-full"
+                      width={50}
+                      height={50}
+                      alt="Avatar"
+                    />
+                  ),
+                }}
+              />
+            </SignOutButton>
           </div>
         </SidebarBody>
       </Sidebar>
@@ -118,7 +122,7 @@ export const Logo = () => {
         animate={{ opacity: 1 }}
         className="font-medium text-black dark:text-white whitespace-pre"
       >
-        BioTrack360
+        MediVerse
       </motion.span>
     </Link>
   );
