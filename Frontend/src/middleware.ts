@@ -1,13 +1,27 @@
-import { clerkMiddleware } from "@clerk/nextjs/server";
-import { IconLayersLinked } from "@tabler/icons-react";
+import { NextResponse, NextRequest } from "next/server";
+import { getAuth } from "@clerk/nextjs/server";
 
-export default clerkMiddleware();
+export default function middleware(req: NextRequest) {
+  const { userId, sessionClaims } = getAuth(req);
+
+  if (!userId) {
+    return NextResponse.redirect("/sign-in"); // Redirect unauthenticated users
+  }
+
+  const role = sessionClaims?.role;
+
+  if (req.nextUrl.pathname === "/dashboard") {
+    // Redirect based on role
+    if (role === "doctor") {
+      return NextResponse.redirect("/doc-dashboard");
+    } else if (role === "member") {
+      return NextResponse.redirect("/user-dashboard");
+    }
+  }
+
+  return NextResponse.next();
+}
 
 export const config = {
-  matcher: [
-    // Skip Next.js internals and all static files, unless found in search params
-    '/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)',
-    // Always run for API routes
-    '/(api|trpc)(.*)',
-  ],
-}; 
+  matcher: ["/dashboard"],
+};

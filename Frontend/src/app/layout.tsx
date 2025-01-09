@@ -3,6 +3,7 @@ import localFont from "next/font/local";
 import "./globals.css";
 import { ResponseProvider } from '@/context/ResponseContext';
 import {
+  AuthenticateWithRedirectCallback,
   ClerkProvider,
   SignInButton,
   SignedIn,
@@ -37,12 +38,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {/* <SignedOut>
-            <SignInButton />
-          </SignedOut>
-          <SignedIn>
-            <UserButton />
-          </SignedIn> */}
+        <AuthenticateWithRedirectCallback />
         <ResponseProvider>
           {children}
         </ResponseProvider>
