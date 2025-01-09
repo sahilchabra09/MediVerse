@@ -1,0 +1,45 @@
+{
+    "features": [
+      {
+        "id": 1,
+        "title": "Real-Time Patient Monitoring",
+        "slug": "real-time-patient-monitoring",
+        "description": "Monitor patient vitals continuously with real-time data displayed on a dynamic dashboard.",
+        "icon": "/images/v1.png",
+        "isHighlighted": true
+      },
+      {
+        "id": 2,
+        "title": "AI-Based Rehab Routines",
+        "slug": "ai-based-rehab-routines",
+        "description": "Personalized rehabilitation routines powered by AI to help patients recover faster, inspired by the 'Solo Leveling' concept.",
+        "icon": "/images/v2.png",
+        "isHighlighted": true
+      },
+      {
+        "id": 3,
+        "title": "OCR-Powered Report Uploads",
+        "slug": "ocr-powered-report-uploads",
+        "description": "Easily upload medical reports, with important details automatically extracted using Amazon and Tesseract OCR technology.",
+        "icon": "/images/v3.png",
+        "isHighlighted": true
+      },
+      {
+        "id": 4,
+        "title": "Video Consultations with Doctors",
+        "slug": "video-consultations",
+        "description": "Connect with healthcare professionals through seamless video consultations directly from the platform.",
+        "icon": "/images/v4.png",
+        "isHighlighted": true
+      },
+      {
+        "id": 5,
+        "title": "Fall Detection with Emergency Alerts",
+        "slug": "fall-detection-emergency-alerts",
+        "description": "Detect falls in real-time with gyro sensors and automatically send emergency alerts via SMS using Twilio.",
+        "icon": "/images/v5.png",
+        "isHighlighted": true
+      }
+    ]
+  }
+  
