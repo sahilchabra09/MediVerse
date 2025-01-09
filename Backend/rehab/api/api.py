@@ -25,17 +25,10 @@ from pydantic import BaseModel
 from typing import List,Optional
 from datetime import datetime
 import random
+from dotenv import load_dotenv
 
-class JWTAuth(HttpBearer):
-    def authenticate(self, request, token):
-        try:
-            UntypedToken(token)  # This will validate the token
-            return token
-        except InvalidToken:
-            return JsonResponse({"error": "Invalid token"}, status=403)
+load_dotenv()
 
-auth = JWTAuth()
-# router = Router(auth=auth)
 router = Router(auth=None)
 
 # Feature 4 : Routine Generation
@@ -64,56 +57,7 @@ def routine_feature(request, data: GoalSchema):
     response = talk_to_gemini(query)
 
     return {"routine": response}
-# feature 3 : data collection
-class SensorDataSchema(BaseModel):
-    ecg: List[float]  # Modify ecg to accept a list of floats
-    temperature: float
-    fallDetected: bool
-    oximeter: Optional[float] = None  # Set default to None
-    blood_pressure: Optional[float] = None  # Set default to None
 
-sensor_data_storage = []  # Temporary in-memory storage
-
-
-def generate_default_values():
-    """Generate random values within the normal range for oximeter and blood pressure."""
-    return {
-        "oximeter": random.uniform(95, 100),            # Oximeter in % SpO2
-        "blood_pressure": random.uniform(110, 130)      # Systolic blood pressure in mmHg
-    }
-
-
-@router.post("/sensor-data/")
-def receive_sensor_data(request,data: SensorDataSchema):
-    # Use provided data or generate random values
-    default_values = generate_default_values()
-    sensor_data = {
-        "ecg": data.ecg,
-        "temperature": data.temperature,
-        "fallDetected": data.fallDetected,
-        "oximeter":  default_values["oximeter"],
-        "blood_pressure": default_values["blood_pressure"],
-        "timestamp": datetime.now()
-    }
-
-    # Keep only the last 10 data entries in memory
-    if len(sensor_data_storage) > 10:
-        sensor_data_storage.pop(0)
-
-    # Trigger emergency alert if a fall is detected
-    if data.fallDetected:
-        send_sms('+916284132301', 'Emergency Alert! Please check on the patient immediately.')
-
-    sensor_data_storage.append(sensor_data)  # Simulate database storage
-
-    return {"status": "success", "data": sensor_data}
-
-@router.get("/sensor-data/")
-def get_sensor_data(request):
-    if sensor_data_storage:
-        return sensor_data_storage[-1]  # Return the most recent sensor data
-    return {"message": "No data available"}
-# feature 3 end
 
 
 # Feature 1: File upload and summarization start
@@ -172,7 +116,7 @@ class DoctorCallRequest(Schema):
 def doctorCall(request, data: DoctorCallRequest):
     meeting_id = data.meeting_id
     moderatorURL = f'https://meet.jit.si/{meeting_id}#config.prejoinPageEnabled=false&userInfo.displayName=Moderator';
-    send_sms('+916284132301', f'Click this link to join the meeting as a moderator: {moderatorURL}')
+    send_sms('+917009023965', f'Click this link to join the meeting as a moderator: {moderatorURL}')
     return {"message": "Doctor called successfully"}
 
 def send_sms(to, message):
@@ -189,73 +133,15 @@ def send_sms(to, message):
 # Feature 2 end
 
 def talk_to_gemini(query):
-    # Call Gemini API
-    genai.configure(os.getenv("GOOGLE_GEMINI_API_KEY"))
+    # Get the API key from environment variables
+    api_key = os.getenv("GOOGLE_GEMINI_API_KEY")
+    if not api_key:
+        raise ValueError("Google Gemini API key is not set. Please ensure it's set in your .env file.")
+
+    # Configure the genai library with the correct API key
+    genai.configure(api_key=api_key)
+
+    # Initialize the model
     model = genai.GenerativeModel("gemini-1.5-flash")
     response = model.generate_content(query)
-    # print(response.text)
     return response.text
-
-
-@router.get('/ping')
-def index(request):
-    return {"message": "pong"}
-
-
-# Protected route
-@router.get("/protected-route/", auth=auth)
-def protected_route(request):
-    return {"message": "This is a protected route. You are authenticated."}
-
-# Schema for user registration
-class RegisterSchema(Schema):
-    username: str
-    password: str
-    email: str
-
-# Register endpoint
-@router.post("/register/",auth=None)
-def register(request, data: RegisterSchema):
-    # Check if the username already exists
-    if User.objects.filter(username=data.username).exists():
-        return JsonResponse({"error": "Username already exists"}, status=400)
-
-    # Create a new user
-    user = User.objects.create(
-        username=data.username,
-        password=make_password(data.password),  # Hash the password
-        email=data.email
-    )
-
-    return JsonResponse({"message": "User registered successfully"}, status=201)
-
-
-# JWT Setup
-# Login endpoint to get JWT token
-
-# Schema for login
-class LoginSchema(Schema):
-    username: str
-    password: str
-
-@router.post("/login/",auth=None)
-def login(request, data: LoginSchema):
-    user = authenticate(username=data.username, password=data.password)
-    if user is not None:
-        refresh = RefreshToken.for_user(user)
-        return {
-            'refresh': str(refresh),
-            'access': str(refresh.access_token),
-        }
-    else:
-        return JsonResponse({"error": "Invalid credentials"}, status=401)
-
-# Refresh token endpoint
-@router.post("/token/refresh/")
-def refresh_token(request, refresh: str):
-    try:
-        refresh_token = RefreshToken(refresh)
-        access_token = refresh_token.access_token
-        return {"access": str(access_token)}
-    except Exception as e:
-        return JsonResponse({"error": str(e)}, status=400)
