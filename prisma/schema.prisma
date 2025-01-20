@@ -8,11 +8,12 @@ datasource db {
 }
 
 model User {
-  id         String   @id @default(uuid())
-  clerkId    String   @unique
-  email      String   @unique
-  firstName  String
-  lastName   String
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @default(now())
+  id         String   @id @db.VarChar(36)
+  clerkid    String   @unique @db.VarChar(36)
+  email      String   @unique @db.VarChar(120)
+  first_name  String   @db.VarChar(80)
+  last_name   String   @db.VarChar(80)
+  createdat  DateTime @default(now()) @db.Timestamp
+  updatedat  DateTime @default(now()) @db.Timestamp
+  role       String   @db.VarChar(20)
 }

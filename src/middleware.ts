@@ -6,6 +6,7 @@ export default clerkMiddleware(async (auth, req) => {
       req.nextUrl.pathname.startsWith("/sign-in") ||
       req.nextUrl.pathname.startsWith("/sign-up") ||
       req.nextUrl.pathname.startsWith("/api/") ||
+      req.nextUrl.pathname.startsWith("/api/webhooks") ||
       req.nextUrl.pathname === "/UserTypeSelection") {
     return NextResponse.next();
   }
@@ -15,5 +16,10 @@ export default clerkMiddleware(async (auth, req) => {
 });
 
 export const config = {
-  matcher: ['/((?!.+\\.[\\w]+$|_next).*)', '/', '/(api|trpc)(.*)'],
+  matcher: [
+    '/((?!.+\\.[\\w]+$|_next).*)',
+    '/',
+    '/(api|trpc)(.*)',
+    '/!api/webhooks(.*)'  // Explicitly exclude webhook routes
+  ],
 };

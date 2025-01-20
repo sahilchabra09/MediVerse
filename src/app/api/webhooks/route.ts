@@ -4,12 +4,12 @@ import { WebhookEvent } from "@clerk/nextjs/server";
 import { createUser } from "@/lib/actions/user.actions";
 
 export async function POST(req: Request) {
+  console.log("Webhook received - Starting processing");
+  
   const SIGNING_SECRET = process.env.SIGNING_SECRET;
-
   if (!SIGNING_SECRET) {
-    throw new Error(
-      "Error: Please add SIGNING_SECRET from Clerk Dashboard to .env or .env.local"
-    );
+    console.error("Missing SIGNING_SECRET");
+    throw new Error("Error: Please add SIGNING_SECRET from Clerk Dashboard to .env or .env.local");
   }
 
   // Create new Svix instance with secret
@@ -55,12 +55,11 @@ export async function POST(req: Request) {
 
   if (eventType === "user.created") {
     const { id, first_name, last_name, email_addresses } = evt.data;
+    console.log("Processing user.created event", { id, first_name, last_name, email_addresses });
 
     if (!id || !first_name || !last_name || !email_addresses[0]) {
-      console.error("Error: Missing user data");
-      return new Response("Error: Missing user data", {
-        status: 400,
-      });
+      console.error("Missing user data in webhook payload");
+      return new Response("Error: Missing user data", { status: 400 });
     }
 
     const newUser = {
@@ -68,13 +67,16 @@ export async function POST(req: Request) {
       firstName: first_name,
       lastName: last_name,
       email: email_addresses[0].email_address,
+      role: 'member' // Default role for new users
     };
 
-    await createUser(newUser);
+    console.log("Attempting to create user in database", newUser);
+    const createdUser = await createUser(newUser);
+    console.log("User created successfully", createdUser);
   }
 
   console.log(`Received webhook with ID ${id} and event type of ${eventType}`);
   console.log("Webhook payload:", body);
 
-  return new Response("Webhook received", { status: 200 });
+  return new Response("Webhook processed successfully", { status: 200 });
 }
