@@ -67,7 +67,7 @@ export async function POST(req: Request) {
       firstName: first_name,
       lastName: last_name,
       email: email_addresses[0].email_address,
-      role: 'member' // Default role for new users
+      role: 'PATIENT' // Default role for new users
     };
 
     console.log("Attempting to create user in database", newUser);

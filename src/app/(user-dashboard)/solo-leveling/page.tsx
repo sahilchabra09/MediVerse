@@ -21,7 +21,7 @@ export default function SoloLeveling() {
     try {
       console.log("Sending request with goal:", goal);
       const response = await axios.post<RoutineResponse>(
-        "https://rehab360.pythonanywhere.com/api/routine",
+        "http://127.0.0.1:5000/ai/routine",
         {
           goal: goal,
         }

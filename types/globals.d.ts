@@ -1,7 +1,7 @@
 export {}
 
 // Define the roles available in your app
-export type Roles =  "member" | "doctor";
+export type Roles =  "PATIENT" | "doctor";
 
 declare global {
   interface CustomJwtSessionClaims {

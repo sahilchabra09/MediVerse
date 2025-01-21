@@ -3,6 +3,7 @@ import { useUser } from "@clerk/nextjs";
 import { SidebarDash } from "@/components/sidebar-dash";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
+import LoadingScreen from "@/components/LoadingScreen";
 
 const UserDashboardLayout = ({ children }: { children: React.ReactNode }) => {
   const { user, isLoaded } = useUser();
@@ -12,15 +13,23 @@ const UserDashboardLayout = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     if (isLoaded && !user) {
       router.push('/sign-in');
+      return;
     }
     
-    if (isLoaded && user && !user.unsafeMetadata.role) {
-      router.push('/onboarding');
+    if (isLoaded && user) {
+      const userRole = user.unsafeMetadata.role;
+      if (userRole === 'DOCTOR' && !pathname.includes('/doc-dashboard')) {
+        router.push('/doc-dashboard');
+      } else if (userRole === 'PATIENT' && !pathname.includes('/user-dashboard')) {
+        router.push('/user-dashboard');
+      }
     }
-  }, [isLoaded, user, router]);
+  }, [isLoaded, user, router, pathname]);
 
   if (!isLoaded || !user) {
-    return <div>Loading...</div>;
+    return <div>
+      <LoadingScreen/>
+    </div>;
   }
 
   return (

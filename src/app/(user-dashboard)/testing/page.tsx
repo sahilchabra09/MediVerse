@@ -1,77 +1,53 @@
 "use client";
-import LoadingScreen from "@/components/LoadingScreen";
-import { useUser } from "@clerk/nextjs";
-import { useEffect, useState } from "react";
 
 interface UserDetails {
   address: string;
   age: number;
-  alcohol_consumption: string;
   blood_group: string;
+  height: number;
+  weight: number;
   bmi: number;
-  chronic_conditions: string;
-  clerkid: string;
-  current_health_conditions: string;
+  known_allergies: string;
   current_medication: string;
-  date_of_birth: string;
-  dietary_preferences: string;
-  email: string;
   emergency_contact_name: string;
   emergency_contact_phone: string;
   emergency_contact_relationship: string;
-  exercise_frequency: string;
-  family_medical_history: string;
-  first_name: string;
-  gender: string;
-  height: number;
-  insurance_plan_number: string;
   insurance_provider: string;
+  insurance_plan_number: string;
   insurance_validity: string;
-  known_allergies: string;
-  last_name: string;
-  mental_health_conditions: string;
   phone_number: string;
-  previous_major_diseases: string;
-  previous_major_surgeries: string;
-  smoking_status: string;
-  vaccination_history: string;
-  weight: number;
+  gender: string;
+  first_name: string;
+  last_name: string;
+  email: string;
 }
 
 export default function Dashboard() {
-  const { user } = useUser();
-  const [userDetails, setUserDetails] = useState<UserDetails | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchUserDetails = async () => {
-      try {
-        const response = await fetch(`http://127.0.0.1:5000/user/get-details/${user?.id}`);
-        const data = await response.json();
-        setUserDetails(data);
-      } catch (error) {
-        console.error('Error fetching user details:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (user?.id) {
-      fetchUserDetails();
-    }
-  }, [user?.id]);
-
-  if (loading) {
-    return <div className="flex justify-center items-center h-screen"><LoadingScreen/>
-    </div>;
-  }
-
-  if (!userDetails) {
-    return <div className="text-center p-6">No user details found</div>;
-  }
+  // Just a hard-coded example object for the UI
+  const userDetails: UserDetails = {
+    address: "123 Main St, Anytown, USA",
+    age: 30,
+    blood_group: "O+",
+    height: 170,
+    weight: 65,
+    bmi: 22,
+    known_allergies: "Peanuts, Dust",
+    current_medication: "None",
+    emergency_contact_name: "John Doe",
+    emergency_contact_phone: "555-1234",
+    emergency_contact_relationship: "Brother",
+    insurance_provider: "ACME Insurance",
+    insurance_plan_number: "PLAN-12345",
+    insurance_validity: "2025-12-31",
+    phone_number: "555-6789",
+    gender: "Female",
+    first_name: "Jane",
+    last_name: "Smith",
+    email: "jane.smith@example.com",
+  };
 
   return (
-    <div className="p-6  min-h-screen">
+    <div className="p-6 min-h-screen">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Personal Information */}
         <div className="bg-gray-800 rounded-lg shadow-lg p-6">
@@ -123,9 +99,10 @@ export default function Dashboard() {
   );
 }
 
+// Reusable info card component
 const InfoCard = ({ label, value }: { label: string; value: string }) => (
   <div className="bg-gray-700 rounded-lg p-4">
     <h3 className="text-gray-400 text-sm font-medium mb-1">{label}</h3>
-    <p className="text-white">{value || 'Not provided'}</p>
+    <p className="text-white">{value || "Not provided"}</p>
   </div>
 );

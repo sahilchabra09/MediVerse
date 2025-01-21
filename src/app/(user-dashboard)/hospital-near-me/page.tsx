@@ -86,11 +86,23 @@ export default function HospitalsNearMe() {
       const response = await fetch(
         `/api/nearby-hospitals?lat=${latitude}&lng=${longitude}`
       );
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
       const data = await response.json();
-      console.log('Hospitals data:', data);
+      console.log('Raw API response:', data); // Debug log
+      
+      if (!data.hospitals || !Array.isArray(data.hospitals)) {
+        console.error('Invalid hospitals data format:', data);
+        setHospitals([]);
+        return;
+      }
+      
       setHospitals(data.hospitals);
+      console.log('Set hospitals state to:', data.hospitals); // Debug log
     } catch (error) {
       console.error('Error fetching hospitals:', error);
+      setHospitals([]); // Ensure we set empty array on error
     } finally {
       setIsLoading(false);
     }
@@ -178,24 +190,24 @@ export default function HospitalsNearMe() {
 
       {/* Nearest Hospitals List - Updated styling */}
       <div className="mt-6 bg-black rounded-lg shadow">
-        <h2 className="text-xl font-semibold p-4 border-b">5 Nearest Hospitals</h2>
+        <h2 className="text-xl font-semibold p-4 border-b border-gray-700 text-white">5 Nearest Hospitals</h2>
         {hospitals.length > 0 ? (
-          <div className="divide-y">
+          <div className="divide-y divide-gray-700">
             {hospitals.slice(0, 5).map((hospital, index) => (
               <div 
                 key={index}
-                className="p-4 hover:bg-gray-50 transition-colors"
+                className="p-4 hover:bg-gray-800 transition-colors"
               >
                 <div className="flex justify-between items-center">
                   <div>
-                    <h3 className="font-medium text-lg text-gray-900">{hospital.name}</h3>
-                    <p className="text-sm text-gray-500 mt-1">
+                    <h3 className="font-medium text-lg text-white">{hospital.name}</h3>
+                    <p className="text-sm text-gray-400 mt-1">
                       Distance: <span className="font-medium">{hospital.distance}</span>
                     </p>
                   </div>
                   <button 
                     onClick={() => window.open(`https://www.google.com/maps/dir/?api=1&destination=${hospital.location.lat},${hospital.location.lng}`, '_blank')}
-                    className="px-4 py-2 text-sm text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
+                    className="px-4 py-2 text-sm text-blue-400 hover:bg-gray-700 rounded-md transition-colors"
                   >
                     Get Directions
                   </button>
@@ -204,7 +216,7 @@ export default function HospitalsNearMe() {
             ))}
           </div>
         ) : (
-          <div className="p-4 text-center text-gray-500">
+          <div className="p-4 text-center text-gray-400">
             No hospitals found nearby
           </div>
         )}
