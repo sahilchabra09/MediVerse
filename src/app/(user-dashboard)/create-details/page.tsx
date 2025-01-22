@@ -59,7 +59,7 @@ export default function CreateDetails() {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch("http://127.0.0.1:5000/user/create-details", {
+      const response = await fetch("https://mediverse-backend.onrender.com/user/create-details", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

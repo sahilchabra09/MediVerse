@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { GoogleMap, LoadScript, InfoWindow, Circle, Marker } from '@react-google-maps/api';
+import LoadingScreen from '@/components/LoadingScreen';
 
 interface Hospital {
   name: string;
@@ -114,7 +115,11 @@ export default function HospitalsNearMe() {
   };
 
   if (isLoading) {
-    return <div className="flex justify-center items-center h-screen">Loading...</div>;
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <LoadingScreen />
+      </div>
+    );
   }
 
   if (!userLocation) {

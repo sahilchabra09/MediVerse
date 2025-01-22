@@ -1,39 +1,83 @@
 "use client";
 
-import { useState } from "react";
-import axios from "axios";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useUser } from "@clerk/clerk-react";
 
 interface RoutineResponse {
   routine: string;
+}
+
+interface Report {
+  created_at: string;
+  file_url: string;
+  summarized_text: string;
 }
 
 export default function SoloLeveling() {
   const [goal, setGoal] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [reports, setReports] = useState<Report[]>([]);
   const router = useRouter();
+  const { user, isLoaded } = useUser();
+
+  useEffect(() => {
+    if (!isLoaded) return; // Wait for Clerk to finish loading
+    if (!user || !user.id) {
+      setError("User not authenticated");
+      return;
+    }
+
+    const fetchReports = async () => {
+      try {
+        const response = await fetch(`https://mediverse-backend.onrender.com/ai/get-reports/${user.id}`);
+        const data = await response.json();
+
+        if (response.ok) {
+          setReports(data.reports || []);
+        } else {
+          setError("Failed to fetch reports");
+        }
+      } catch (error) {
+        console.error("Error fetching reports:", error);
+        setError("An error occurred. Please try again.");
+      }
+    };
+
+    fetchReports();
+  }, [isLoaded, user]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setError("");
+
+    if (!user || !user.id) {
+      setError("User not authenticated");
+      setIsLoading(false);
+      return;
+    }
+
     try {
-      console.log("Sending request with goal:", goal);
-      const response = await axios.post<RoutineResponse>(
-        "http://127.0.0.1:5000/ai/routine",
-        {
+      const response = await fetch("https://mediverse-backend.onrender.com/ai/routine", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          clerkid: user.id,
           goal: goal,
-        }
-      );
-      console.log("API Response:", response.data);
-      if (response.data && response.data.routine) {
-        localStorage.setItem("todoList", JSON.stringify(response.data));
-        console.log("Stored in localStorage:", JSON.stringify(response.data));
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data && data.routine) {
+        localStorage.setItem("todoList", JSON.stringify(data));
         router.push("/todo");
       } else {
         setError("Received invalid data from the server");
-        console.error("Invalid response data:", response.data);
       }
     } catch (error) {
       console.error("Error fetching routine:", error);
@@ -42,7 +86,6 @@ export default function SoloLeveling() {
       setIsLoading(false);
     }
   };
-
   return (
     <div className="flex-1 p-8">
       <div className="max-w-xl mx-auto bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
@@ -86,6 +129,27 @@ export default function SoloLeveling() {
           <div className="mt-6">
             <p className="text-red-500 font-medium">{error}</p>
           </div>
+        )}
+      </div>
+
+      <div className="max-w-xl mx-auto bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mt-8">
+        <h2 className="text-2xl font-bold mb-6 text-gray-900 dark:text-white">
+          Previous Routines
+        </h2>
+        {reports.length === 0 ? (
+          <p className="text-gray-700 dark:text-gray-300">No previous routines found.</p>
+        ) : (
+          <ul className="space-y-4">
+            {reports.map((report) => (
+              <li key={report.created_at} className="bg-gray-700 p-4 rounded-lg">
+                <p className="text-gray-300"><strong>Date:</strong> {new Date(report.created_at).toLocaleString()}</p>
+                <p className="text-gray-300"><strong>Summary:</strong> {report.summarized_text}</p>
+                <a href={report.file_url} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
+                  View Full Report
+                </a>
+              </li>
+            ))}
+          </ul>
         )}
       </div>
     </div>

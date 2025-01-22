@@ -1,5 +1,5 @@
 "use client";
-import { CardHoverEffectDemo } from "@/components/myhealth";
+import  MyHealth  from "@/components/myhealth";
 import React from "react";
 
 function UserHealth() {
@@ -8,7 +8,7 @@ function UserHealth() {
       <h1 className="text-3xl font-bold text-center text-neutral-600 dark:text-white mb-4">
         Patients list
       </h1>
-      <CardHoverEffectDemo />
+      <MyHealth />
     </div>
   );
 }

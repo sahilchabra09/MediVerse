@@ -9,6 +9,7 @@ import {
   IconArrowLeft,
   IconRun,
   IconMessage,
+  IconPrescription,
 } from "@tabler/icons-react";
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -41,7 +42,7 @@ export function SidebarDash({ currentPath }: { currentPath: string }) {
     },
     {
       label: "Schedule Appointment",
-      href: "/schedule-appointment",
+      href: "/appointments",
       icon: (
         <IconStethoscope className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
       ),
@@ -58,6 +59,13 @@ export function SidebarDash({ currentPath }: { currentPath: string }) {
       href: "/upload-file",
       icon: (
         <IconFileAnalytics className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
+      ),
+    },
+    {
+      label: "Prescriptions",
+      href: "/prescriptions",
+      icon: (
+        <IconPrescription className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
       ),
     },
     {

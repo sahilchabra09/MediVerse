@@ -1,43 +1,60 @@
-import { HoverEffect } from "./ui/card-hover-effect";
-import {
-  IconUserCircle,
-  IconHeartbeat,
-  IconStethoscope,
-  IconFirstAidKit,
-} from "@tabler/icons-react"; // Tabler icons
+import React, { useEffect, useState } from "react";
+import {HoverEffect} from "./ui/card-hover-effect";
+import { IconUserCircle, IconHeartbeat, IconStethoscope } from "@tabler/icons-react";
+import LoadingScreen from "./LoadingScreen";
 
-export function CardHoverEffectDemo() {
-  return (
-    <div className="max-w-5xl mx-auto px-8">
-      <HoverEffect items={patientData} />
-    </div>
-  );
+interface User {
+  email: string;
+  name: string;
+  phone_number: string;
 }
 
-// Dummy patient-related data
-export const patientData = [
-  {
-    title: "John Doe",
-    description: "Age: 45 | Disease: Hypertension, Diabetes",
-    link: "#", // You can update this with actual links later
-    icon: <IconUserCircle className="h-24 w-24 text-blue-500" />, // Large icon
-  },
-  {
-    title: "Jane Smith",
-    description: "Age: 32 | Disease: Asthma, Anxiety",
-    link: "#",
-    icon: <IconHeartbeat className="h-24 w-24 text-red-500" />, // Large icon
-  },
-  {
-    title: "Mark Johnson",
-    description: "Age: 56 | Disease: Coronary Artery Disease",
-    link: "#",
-    icon: <IconStethoscope className="h-24 w-24 text-green-500" />, // Large icon
-  },
-  {
-    title: "Emily Davis",
-    description: "Age: 28 | Disease: Allergies, Migraines",
-    link: "#",
-    icon: <IconFirstAidKit className="h-24 w-24 text-orange-500" />, // Large icon
-  },
-];
+const MyHealth: React.FC = () => {
+  const [users, setUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const response = await fetch("https://mediverse-backend.onrender.com/doctor/get-all-users");
+        const data = await response.json();
+        if (response.ok) {
+          setUsers(data);
+        } else {
+          setError("Failed to fetch users");
+        }
+      } catch (error) {
+        console.error("Error fetching users:", error);
+        setError("An error occurred. Please try again.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUsers();
+  }, []);
+
+  if (loading) {
+    return <div>
+    <LoadingScreen/>
+    </div>;
+  }
+
+  if (error) {
+    return <div style={{ color: "red" }}>{error}</div>;
+  }
+
+  return (
+    <div className="max-w-5xl mx-auto px-8">
+      <HoverEffect items={users.map(user => ({
+        title: user.name,
+        description: `Email: ${user.email} | Phone: ${user.phone_number}`,
+        link: "#", // You can update this with actual links later
+        icon: <IconUserCircle className="h-24 w-24 text-blue-500" />, // Large icon
+      }))} />
+    </div>
+  );
+};
+
+export default MyHealth;

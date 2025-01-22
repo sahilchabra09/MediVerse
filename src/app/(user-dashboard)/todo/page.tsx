@@ -10,12 +10,16 @@ export default function TodoPage() {
   useEffect(() => {
     const storedData = localStorage.getItem("todoList");
     console.log("Data from localStorage:", storedData);
+
     if (storedData) {
       try {
         const parsedData = JSON.parse(storedData);
         console.log("Parsed data:", parsedData);
+
         if (parsedData && parsedData.routine) {
-          setMarkdownContent(parsedData.routine);
+          // Remove the Markdown code block syntax if it exists
+          const cleanedMarkdown = parsedData.routine.replace(/^```markdown\n|```$/g, "");
+          setMarkdownContent(cleanedMarkdown);
         } else {
           setError("Invalid data format in localStorage");
         }
@@ -52,16 +56,16 @@ export default function TodoPage() {
                 ),
                 h3: ({ node, ...props }) => (
                   <h3 className="text-xl text-white font-semibold" {...props} />
-                ), // Heading like "Upper Body"
+                ),
                 p: ({ node, ...props }) => (
-                  <p className="text-gray-300" {...props} />
+                  <p className="text-gray-300 leading-relaxed" {...props} />
                 ),
                 li: ({ node, ...props }) => (
-                  <li className="text-gray-300" {...props} />
-                ), // List items in white or gray
+                  <li className="text-gray-300 list-disc list-inside" {...props} />
+                ),
                 strong: ({ node, ...props }) => (
-                  <strong className="text-white" {...props} />
-                ), // Strong text like "Upper Body", "Lower Body"
+                  <strong className="text-white font-bold" {...props} />
+                ),
               }}
             >
               {markdownContent}

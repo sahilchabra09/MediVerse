@@ -7,7 +7,7 @@ export default function TalkToDoctor() {
     "https://meet.jit.si/roomName#config.prejoinPageEnabled=false&userInfo.displayName=Moderator";
 
   const startInstantMeeting = () => {
-    fetch("https://rehab360.pythonanywhere.com/api/doctorCall", {
+    fetch("https://mediverse-backend.onrender.com/meeting/doctor-call", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

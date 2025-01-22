@@ -46,7 +46,7 @@ export default function Dashboard() {
   useEffect(() => {
     const fetchUserDetails = async () => {
       try {
-        const response = await fetch(`http://127.0.0.1:5000/user/get-details/${user?.id}`);
+        const response = await fetch(`https://mediverse-backend.onrender.com/user/get-details/${user?.id}`);
         const data = await response.json();
         setUserDetails(data);
       } catch (error) {
