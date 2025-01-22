@@ -5,10 +5,10 @@ import { useEffect, useState } from "react";
 
 interface UserDetails {
   address: string;
-  age: number;
+  age: number | null;
   alcohol_consumption: string;
   blood_group: string;
-  bmi: number;
+  bmi: number | null;
   chronic_conditions: string;
   clerkid: string;
   current_health_conditions: string;
@@ -23,7 +23,7 @@ interface UserDetails {
   family_medical_history: string;
   first_name: string;
   gender: string;
-  height: number;
+  height: number | null;
   insurance_plan_number: string;
   insurance_provider: string;
   insurance_validity: string;
@@ -35,7 +35,7 @@ interface UserDetails {
   previous_major_surgeries: string;
   smoking_status: string;
   vaccination_history: string;
-  weight: number;
+  weight: number | null;
 }
 
 export default function Dashboard() {
@@ -62,8 +62,7 @@ export default function Dashboard() {
   }, [user?.id]);
 
   if (loading) {
-    return <div className="flex justify-center items-center h-screen"><LoadingScreen/>
-    </div>;
+    return <div className="flex justify-center items-center h-screen"><LoadingScreen/></div>;
   }
 
   if (!userDetails) {
@@ -71,7 +70,7 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="p-6  min-h-screen">
+    <div className="p-6 min-h-screen">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Personal Information */}
         <div className="bg-gray-800 rounded-lg shadow-lg p-6">
@@ -81,7 +80,7 @@ export default function Dashboard() {
             <InfoCard label="Email" value={userDetails.email} />
             <InfoCard label="Phone" value={userDetails.phone_number} />
             <InfoCard label="Gender" value={userDetails.gender} />
-            <InfoCard label="Age" value={userDetails.age.toString()} />
+            <InfoCard label="Age" value={userDetails.age ? userDetails.age.toString() : 'Not provided'} />
             <InfoCard label="Address" value={userDetails.address} />
           </div>
         </div>
@@ -91,9 +90,9 @@ export default function Dashboard() {
           <h2 className="text-2xl font-bold text-white mb-4">Medical Information</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <InfoCard label="Blood Group" value={userDetails.blood_group} />
-            <InfoCard label="Height" value={`${userDetails.height} cm`} />
-            <InfoCard label="Weight" value={`${userDetails.weight} kg`} />
-            <InfoCard label="BMI" value={userDetails.bmi.toString()} />
+            <InfoCard label="Height" value={userDetails.height ? `${userDetails.height} cm` : 'Not provided'} />
+            <InfoCard label="Weight" value={userDetails.weight ? `${userDetails.weight} kg` : 'Not provided'} />
+            <InfoCard label="BMI" value={userDetails.bmi ? userDetails.bmi.toString() : 'Not provided'} />
             <InfoCard label="Known Allergies" value={userDetails.known_allergies} />
             <InfoCard label="Current Medication" value={userDetails.current_medication} />
           </div>
