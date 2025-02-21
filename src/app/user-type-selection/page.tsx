@@ -3,7 +3,7 @@ import { IconStethoscope, IconUser } from "@tabler/icons-react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 
-export default function UserTypeSelection() {
+export default function usertypeselection() {
   return (
     <div className="h-screen flex items-center justify-center bg-gray-900 relative">
       {/* Diagonal Divider */}

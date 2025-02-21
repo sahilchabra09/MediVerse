@@ -1,11 +1,9 @@
-// utils/uploadthing.ts
 import { generateReactHelpers } from "@uploadthing/react";
-import type { OurFileRouter } from "@/app/api/uploadthing/core";
+import type { OurFileRouter } from "@/app/api/uploadthing/core"; // Ensure correct path
 
-// This single function gives you everything you need
 export const {
-  uploadFiles,      // for manual upload
-  useUploadThing,   // for hook usage
-  UploadButton,     // for button usage
-  UploadDropzone,   // for dropzone usage
+  uploadFiles,
+  useUploadThing,
+  UploadButton,
+  UploadDropzone,
 } = generateReactHelpers<OurFileRouter>();

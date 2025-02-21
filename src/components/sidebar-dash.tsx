@@ -23,56 +23,56 @@ export function SidebarDash({ currentPath }: { currentPath: string }) {
       label: "Home",
       href: "/user-dashboard",
       icon: (
-        <IconHome className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
+        <IconHome className="text-gray-700 dark:text-neutral-200 h-5 w-5 m-1 flex-shrink-0" />
       ),
     },
     {
       label: "Solo Leveling",
       href: "/solo-leveling",
       icon: (
-        <IconRun className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
+        <IconRun className="text-neutral-700 dark:text-neutral-200 h-5 w-5 m-1 flex-shrink-0" />
       ),
     },
     {
       label: "Hospitals Near Me",
       href: "/hospital-near-me",
       icon: (
-        <IconHeart className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
+        <IconHeart className="text-neutral-700 dark:text-neutral-200 h-5 w-5 m-1 flex-shrink-0" />
       ),
     },
     {
       label: "Schedule Appointment",
       href: "/appointments",
       icon: (
-        <IconStethoscope className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
+        <IconStethoscope className="text-neutral-700 dark:text-neutral-200 h-5 w-5 m-1 flex-shrink-0" />
       ),
     },
     {
       label: "Talk to Doctor",
       href: "/talk-to-doctor",
       icon: (
-        <IconMessage className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
+        <IconMessage className="text-neutral-700 dark:text-neutral-200 h-5 w-5 m-1  flex-shrink-0" />
       ),
     },
     {
       label: "Report anaylsis",
       href: "/upload-file",
       icon: (
-        <IconFileAnalytics className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
+        <IconFileAnalytics className="text-neutral-700 dark:text-neutral-200 h-5 w-5 m-1 flex-shrink-0" />
       ),
     },
     {
       label: "Prescriptions",
       href: "/prescriptions",
       icon: (
-        <IconPrescription className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
+        <IconPrescription className="text-neutral-700 dark:text-neutral-200 h-5 w-5 m-1 flex-shrink-0" />
       ),
     },
     {
       label: "Logout",
       href: "/logout",
       icon: (
-        <IconArrowLeft className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
+        <IconArrowLeft className="text-neutral-700 dark:text-neutral-200 h-5 w-5 m-1 flex-shrink-0" />
       ),
     },
   ];
@@ -82,9 +82,9 @@ export function SidebarDash({ currentPath }: { currentPath: string }) {
     <div className="h-screen">
       <Sidebar open={open} setOpen={setOpen}>
         <SidebarBody className="justify-between gap-10">
-          <div className="flex flex-col flex-1 overflow-y-auto overflow-x-hidden">
+          <div className="flex flex-col flex-1 overflow-y-auto   overflow-x-hidden">
             {open ? <Logo /> : <LogoIcon />}
-            <div className="mt-8 flex flex-col gap-2">
+            <div className="mt-8 flex flex-col gap-3">
               {links.map((link, idx) => (
                 <SidebarLink
                   key={idx}
