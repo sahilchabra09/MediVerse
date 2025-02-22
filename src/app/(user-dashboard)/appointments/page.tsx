@@ -14,7 +14,9 @@ const AppointmentsPage: React.FC = () => {
   return (
     <div>
       {selectedDoctorClerkId ? (
-        <NewAppointment doctorClerkId={selectedDoctorClerkId} />
+        <NewAppointment doctorClerkId={selectedDoctorClerkId} onClose={function (): void {
+          throw new Error("Function not implemented.");
+        } } />
       ) : (
         <DoctorList onSelectDoctor={handleSelectDoctor} />
       )}

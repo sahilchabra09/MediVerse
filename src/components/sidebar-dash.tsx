@@ -41,7 +41,7 @@ export function SidebarDash({ currentPath }: { currentPath: string }) {
       ),
     },
     {
-      label: "Schedule Appointment",
+      label: "Appointments",
       href: "/appointments",
       icon: (
         <IconStethoscope className="text-neutral-700 dark:text-neutral-200 h-5 w-5 m-1 flex-shrink-0" />

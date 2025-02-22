@@ -39,17 +39,21 @@ const DoctorList: React.FC<DoctorListProps> = ({ onSelectDoctor }) => {
   }, []);
 
   if (loading) {
-    return <div className="text-center text-white">Loading...</div>;
+    return <div className="text-center text-gray-600 dark:text-gray-300 py-8">Loading doctors...</div>;
   }
 
   if (error) {
-    return <div className="text-center text-red-500">{error}</div>;
+    return <div className="text-center text-red-500 py-8">{error}</div>;
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+    <div className="flex flex-wrap justify-center gap-8 p-6">
       {doctors.map((doctor) => (
-        <div key={doctor.clerkid} onClick={() => onSelectDoctor(doctor.clerkid)} className="cursor-pointer">
+        <div 
+          key={doctor.clerkid} 
+          onClick={() => onSelectDoctor(doctor.clerkid)} 
+          className="cursor-pointer min-w-[300px] flex-1 basis-[300px] max-w-[400px] transition-transform hover:scale-105"
+        >
           <HoverEffect
             items={[{
               title: `${doctor.first_name} ${doctor.last_name}`,
