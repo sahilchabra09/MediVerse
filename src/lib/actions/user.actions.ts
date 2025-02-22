@@ -21,7 +21,9 @@ export async function createUser(user: User) {
         first_name: user.firstName,
         last_name: user.lastName,
         email: user.email,
-        role: user.role || 'member'
+        role: user.role || 'PATIENT', // Default role for new users
+        createdat: new Date(),
+        updatedat: new Date()
       },
     });
     console.log("User created successfully:", result);

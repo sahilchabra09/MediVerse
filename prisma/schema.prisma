@@ -8,12 +8,184 @@ datasource db {
 }
 
 model User {
-  id         String   @id @db.VarChar(36)
-  clerkid    String   @unique @db.VarChar(36)
-  email      String   @unique @db.VarChar(120)
-  first_name  String   @db.VarChar(80)
-  last_name   String   @db.VarChar(80)
-  createdat  DateTime @default(now()) @db.Timestamp
-  updatedat  DateTime @default(now()) @db.Timestamp
-  role       String   @db.VarChar(20)
+  id                                                String           @id @db.VarChar(36)
+  clerkid                                           String           @unique @db.VarChar(36)
+  email                                             String           @unique @db.VarChar(120)
+  first_name                                        String           @db.VarChar(80)
+  last_name                                         String           @db.VarChar(80)
+  createdat                                         DateTime         @db.Timestamp(6)
+  updatedat                                         DateTime         @db.Timestamp(6)
+  role                                              String           @db.VarChar(20)
+  appointments_appointments_doctor_clerkidToUser    appointments[]   @relation("appointments_doctor_clerkidToUser")
+  appointments_appointments_patient_clerkidToUser   appointments[]   @relation("appointments_patient_clerkidToUser")
+  doctor_details                                    doctor_details[]
+  prescriptions_prescriptions_doctor_clerkidToUser  prescriptions[]  @relation("prescriptions_doctor_clerkidToUser")
+  prescriptions_prescriptions_patient_clerkidToUser prescriptions[]  @relation("prescriptions_patient_clerkidToUser")
+  routines                                          routines[]
+  text_reports                                      text_reports[]
+  user_details                                      user_details[]
+}
+
+model appointments {
+  id                                      Int        @id @default(autoincrement())
+  doctor_clerkid                          String     @db.VarChar(36)
+  patient_clerkid                         String     @db.VarChar(36)
+  appointment_date                        DateTime   @db.Timestamp(6)
+  status                                  String     @db.VarChar(15)
+  text_field                              String?
+  hospital_id                             Int?
+  User_appointments_doctor_clerkidToUser  User       @relation("appointments_doctor_clerkidToUser", fields: [doctor_clerkid], references: [clerkid], onDelete: NoAction, onUpdate: NoAction)
+  hospitals                               hospitals? @relation(fields: [hospital_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  User_appointments_patient_clerkidToUser User       @relation("appointments_patient_clerkidToUser", fields: [patient_clerkid], references: [clerkid], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model doctor_details {
+  id                  Int        @id @default(autoincrement())
+  clerkid             String     @db.VarChar(36)
+  first_name          String     @db.VarChar(80)
+  last_name           String     @db.VarChar(80)
+  email               String     @db.VarChar(120)
+  phone_number        String     @db.VarChar(20)
+  address             String?    @db.VarChar(255)
+  specialization      String     @db.VarChar(100)
+  years_of_experience Int
+  department          String?    @db.VarChar(100)
+  clinic_address      String?    @db.VarChar(255)
+  consultation_fee    Float
+  available_days      String     @db.VarChar(50)
+  available_time      String     @db.VarChar(50)
+  hospital_id         Int?
+  User                User       @relation(fields: [clerkid], references: [clerkid], onDelete: NoAction, onUpdate: NoAction)
+  hospitals           hospitals? @relation(fields: [hospital_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model emergency_report {
+  id             String    @id @db.VarChar
+  location       String    @db.VarChar
+  emergency_type String    @db.VarChar
+  sensor_id      String?   @db.VarChar
+  timestamp      DateTime? @db.Timestamp(6)
+  sensor         sensor?   @relation(fields: [sensor_id], references: [sensor_name], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model energy_usage {
+  id        String    @id @db.VarChar
+  location  String    @db.VarChar
+  sensor_id String?   @db.VarChar
+  usage_kwh Float
+  timestamp DateTime? @db.Timestamp(6)
+  sensor    sensor?   @relation(fields: [sensor_id], references: [sensor_name], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model garbage {
+  id        String    @id @db.VarChar
+  location  String    @db.VarChar
+  sensor_id String?   @db.VarChar
+  timestamp DateTime? @db.Timestamp(6)
+  sensor    sensor?   @relation(fields: [sensor_id], references: [sensor_name], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model hospitals {
+  id             Int              @id @default(autoincrement())
+  name           String           @db.VarChar(255)
+  address        String           @db.VarChar(255)
+  phone_number   String           @db.VarChar(20)
+  email          String           @db.VarChar(120)
+  website        String?          @db.VarChar(255)
+  created_at     DateTime         @db.Timestamp(6)
+  updated_at     DateTime         @db.Timestamp(6)
+  appointments   appointments[]
+  doctor_details doctor_details[]
+}
+
+model parking_lot {
+  sensor_id    String    @id @db.VarChar
+  status       Boolean?
+  last_updated DateTime? @db.Timestamp(6)
+  sensor       sensor    @relation(fields: [sensor_id], references: [sensor_name], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model prescriptions {
+  id                                       Int      @id @default(autoincrement())
+  doctor_clerkid                           String   @db.VarChar(36)
+  patient_clerkid                          String   @db.VarChar(36)
+  prescription_date                        DateTime @db.Timestamp(6)
+  prescription_text                        String
+  User_prescriptions_doctor_clerkidToUser  User     @relation("prescriptions_doctor_clerkidToUser", fields: [doctor_clerkid], references: [clerkid], onDelete: NoAction, onUpdate: NoAction)
+  User_prescriptions_patient_clerkidToUser User     @relation("prescriptions_patient_clerkidToUser", fields: [patient_clerkid], references: [clerkid], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model routines {
+  id         Int      @id @default(autoincrement())
+  goal       String   @db.VarChar(100)
+  clerkid    String   @db.VarChar(36)
+  routine    String
+  created_at DateTime @db.Timestamp(6)
+  User       User     @relation(fields: [clerkid], references: [clerkid], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model sensor {
+  sensor_name      String             @id @db.VarChar
+  location         String             @db.VarChar
+  type             String             @db.VarChar
+  emergency_report emergency_report[]
+  energy_usage     energy_usage[]
+  garbage          garbage[]
+  parking_lot      parking_lot?
+  water_usage      water_usage[]
+}
+
+model text_reports {
+  id              Int      @id @default(autoincrement())
+  clerkid         String   @db.VarChar(36)
+  file_url        String   @db.VarChar(255)
+  summarized_text String
+  created_at      DateTime @db.Timestamp(6)
+  User            User     @relation(fields: [clerkid], references: [clerkid], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model user_details {
+  id                             Int       @id @default(autoincrement())
+  clerkid                        String    @db.VarChar(36)
+  first_name                     String    @db.VarChar(80)
+  last_name                      String    @db.VarChar(80)
+  email                          String    @db.VarChar(120)
+  phone_number                   String    @db.VarChar(20)
+  date_of_birth                  DateTime  @db.Date
+  gender                         String    @db.VarChar(10)
+  age                            Int
+  address                        String    @db.VarChar(255)
+  blood_group                    String    @db.VarChar(10)
+  known_allergies                String?   @db.VarChar(255)
+  chronic_conditions             String?   @db.VarChar(255)
+  previous_major_diseases        String?   @db.VarChar(255)
+  previous_major_surgeries       String?   @db.VarChar(255)
+  family_medical_history         String?   @db.VarChar(255)
+  height                         Float
+  weight                         Float
+  bmi                            Float?
+  current_medication             String?   @db.VarChar(255)
+  current_health_conditions      String?   @db.VarChar(255)
+  vaccination_history            String?   @db.VarChar(255)
+  emergency_contact_name         String    @db.VarChar(80)
+  emergency_contact_phone        String    @db.VarChar(20)
+  emergency_contact_relationship String    @db.VarChar(50)
+  smoking_status                 String    @db.VarChar(50)
+  alcohol_consumption            String    @db.VarChar(50)
+  exercise_frequency             String?   @db.VarChar(50)
+  dietary_preferences            String?   @db.VarChar(100)
+  insurance_provider             String?   @db.VarChar(100)
+  insurance_plan_number          String?   @db.VarChar(100)
+  insurance_validity             DateTime? @db.Date
+  mental_health_conditions       String?   @db.VarChar(255)
+  User                           User      @relation(fields: [clerkid], references: [clerkid], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model water_usage {
+  id           String    @id @db.VarChar
+  location     String    @db.VarChar
+  sensor_id    String?   @db.VarChar
+  usage_liters Float
+  timestamp    DateTime? @db.Timestamp(6)
+  sensor       sensor?   @relation(fields: [sensor_id], references: [sensor_name], onDelete: NoAction, onUpdate: NoAction)
 }

@@ -69,7 +69,7 @@ export default function PatientDetail() {
   const [prescriptionFormData, setPrescriptionFormData] = useState<PrescriptionFormData>({
     prescription_text: '',
     doctor_clerkid: user?.id || '',
-    hospital_id: 4, // Hardcoded to match appointments
+    hospital_id: 4, // Hardcoded hospital ID
     patient_clerkid: clerkid
   });
   const [patient, setPatient] = useState<PatientDetails | null>(null);
@@ -125,6 +125,57 @@ export default function PatientDetail() {
     }
   };
   
+  const handlePrescriptionSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setFormLoading(true);
+    setFormError('');
+
+    try {
+      const response = await fetch('https://mediverse-backend.onrender.com/prescription/add-prescription', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(prescriptionFormData)
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to create prescription');
+      }
+
+      // Get the response data
+      const responseData = await response.json();
+      
+      // Update prescriptions list with new prescription
+      const newPrescription = {
+        id: responseData.id || Date.now().toString(), // Fallback ID if not provided
+        created_at: new Date().toISOString(),
+        ...prescriptionFormData
+      };
+      
+      setPrescriptions(prev => [...prev, newPrescription]);
+      setShowPrescriptionForm(false);
+      
+      // Reset form
+      setPrescriptionFormData({
+        prescription_text: '',
+        doctor_clerkid: user?.id || '',
+        hospital_id: 4,
+        patient_clerkid: clerkid
+      });
+
+      // Show success message
+      alert('Prescription added successfully!');
+      
+    } catch (err: any) {
+      setFormError(err.message || 'Failed to add prescription');
+      console.error('Prescription submission error:', err);
+    } finally {
+      setFormLoading(false);
+    }
+  };
+
   useEffect(() => {
     setExpandedSummaries(new Array(reports.length).fill(false));
   }, [reports]);
@@ -156,10 +207,11 @@ useEffect(() => {
 
       console.log('Fetching from URLs:', urls);
 
-      const [detailsResponse, reportsResponse, appointmentsResponse, ] = await Promise.all([
+      const [detailsResponse, reportsResponse, appointmentsResponse, prescriptionsResponse] = await Promise.all([
         fetch(urls[0]),
         fetch(urls[1]),
-        fetch(urls[2])
+        fetch(urls[2]),
+        fetch(urls[3])
       ]);
 
       console.log('Response statuses:', {
@@ -196,6 +248,16 @@ useEffect(() => {
         reportsCount: reportsData.reports?.length || 0,
         appointmentsCount: appointmentsData.appointments?.length || 0
       });
+
+      if (!prescriptionsResponse.ok) {
+        console.error('Prescriptions fetch failed:', prescriptionsResponse.status);
+        setPrescriptions([]); // Set empty array on error
+        return;
+      }
+
+      const prescriptionsData = await prescriptionsResponse.json();
+      // Ensure we're setting an array
+      setPrescriptions(Array.isArray(prescriptionsData) ? prescriptionsData : []);
 
     } catch (err: any) {
       console.error("Fetch error:", {
@@ -311,7 +373,9 @@ useEffect(() => {
           </div>
 
           {formError && (
-            <p className="text-red-500 text-sm">{formError}</p>
+            <div className="p-3 mb-4 text-sm text-red-500 bg-red-100 dark:bg-red-900/30 rounded-lg">
+              {formError}
+            </div>
           )}
 
           <div className="flex justify-end gap-3 mt-6">
@@ -390,6 +454,102 @@ useEffect(() => {
     </div>
   )}
 </div>
+<div className="bg-white dark:bg-gray-900 rounded-lg shadow-lg p-6 mb-8">
+  <div className="flex justify-between items-center mb-6">
+    <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
+      Prescriptions
+    </h2>
+    <Button
+      onClick={() => setShowPrescriptionForm(true)}
+      className="p-2.5 bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800"
+    >
+      + Add Prescription
+    </Button>
+  </div>
+
+  {!Array.isArray(prescriptions) ? (
+    <div className="text-center py-6 text-red-500">
+      Error loading prescriptions
+    </div>
+  ) : prescriptions.length === 0 ? (
+    <div className="text-center py-6 text-gray-500 dark:text-gray-400">
+      No prescriptions found
+    </div>
+  ) : (
+    <div className="space-y-4">
+      {prescriptions.map((prescription) => (
+        <div 
+          key={prescription.id}
+          className="border-l-4 border-purple-500 pl-4 bg-gray-50 dark:bg-gray-950 p-4 rounded-lg"
+        >
+          <div className="space-y-2">
+            <div className="flex justify-between">
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                {new Date(prescription.created_at).toLocaleDateString('en-US', {
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric'
+                })}
+              </p>
+            </div>
+            <p className="text-gray-800 dark:text-gray-200 whitespace-pre-wrap">
+              {prescription.prescription_text}
+            </p>
+          </div>
+        </div>
+      ))}
+    </div>
+  )}
+</div>
+
+{showPrescriptionForm && (
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+    <div className="bg-white dark:bg-gray-900 rounded-lg shadow-xl p-6 w-full max-w-md">
+      <h3 className="text-xl font-bold mb-4 dark:text-gray-100">New Prescription</h3>
+      
+      <form onSubmit={handlePrescriptionSubmit} className="space-y-4">
+        <div>
+          <label className="block text-sm font-medium mb-1 dark:text-gray-300">
+            Prescription Details
+          </label>
+          <textarea
+            required
+            className="w-full p-2 rounded border border-gray-300 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100"
+            rows={6}
+            value={prescriptionFormData.prescription_text}
+            onChange={(e) => setPrescriptionFormData({
+              ...prescriptionFormData,
+              prescription_text: e.target.value
+            })}
+          />
+        </div>
+
+        {formError && (
+          <div className="p-3 mb-4 text-sm text-red-500 bg-red-100 dark:bg-red-900/30 rounded-lg">
+            {formError}
+          </div>
+        )}
+
+        <div className="flex justify-end gap-3">
+          <Button
+            type="button"
+            onClick={() => setShowPrescriptionForm(false)}
+            className="px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600"
+          >
+            Cancel
+          </Button>
+          <Button
+            type="submit"
+            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white"
+            disabled={formLoading}
+          >
+            {formLoading ? 'Saving...' : 'Save Prescription'}
+          </Button>
+        </div>
+      </form>
+    </div>
+  </div>
+)}
       {/* Health Reports Section */}
       <div className="bg-white dark:bg-gray-900 rounded-lg shadow-lg p-6">
         <h2 className="text-2xl font-bold mb-6 text-gray-800 dark:text-gray-100">

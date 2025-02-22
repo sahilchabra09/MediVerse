@@ -4,6 +4,4 @@ import type { OurFileRouter } from "@/app/api/uploadthing/core"; // Ensure corre
 export const {
   uploadFiles,
   useUploadThing,
-  UploadButton,
-  UploadDropzone,
 } = generateReactHelpers<OurFileRouter>();
