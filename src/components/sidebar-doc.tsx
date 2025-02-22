@@ -8,114 +8,107 @@ import {
   IconFileAnalytics,
   IconArrowLeft,
   IconRun,
+  IconMessage,
+  IconPrescription,
   IconUsers,
 } from "@tabler/icons-react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import Image from "next/image";
-import { cn } from "@/lib/utils";
-import { div } from "framer-motion/client";
+import { SignOutButton, useUser } from "@clerk/nextjs";
 
-export function SidebarDoc() {
+export function SidebarDoc({ currentPath }: { currentPath: string }) {
+  const { user } = useUser();
   const links = [
     {
       label: "Home",
-      href: "/user-dashboard",
+      href: "/doc-dashboard",
       icon: (
-        <IconHome className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
+        <IconHome className="text-neutral-700 dark:text-neutral-200 h-5 w-5 m-1 flex-shrink-0" />
       ),
     },
+
+    {
+      label: "Hospitals Near Me",
+      href: "/hospital-near-me",
+      icon: (
+        <IconHeart className="text-neutral-700 dark:text-neutral-200 h-5 w-5 m-1 flex-shrink-0" />
+      ),
+    },
+    // {
+    //   label: "Schedule Appointment",
+    //   href: "/appointments",
+    //   icon: (
+    //     <IconStethoscope className="text-neutral-700 dark:text-neutral-200 h-5 w-5 m-1 flex-shrink-0" />
+    //   ),
+    // },
+  
+  
     {
       label: "Patients",
       href: "/patients-list",
       icon: (
-        <IconUsers className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
+        <IconUsers className="text-neutral-700 dark:text-neutral-200 h-5 w-5 m-1 flex-shrink-0" />
       ),
     },
     {
       label: "My Health",
       href: "/user-health-doc",
       icon: (
-        <IconHeart className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
+        <IconHeart className="text-neutral-700 dark:text-neutral-200 h-5 w-5 m-1 flex-shrink-0" />
       ),
     },
-    {
-      label: "Solo Leveling",
-      href: "/solo-leveling",
-      icon: (
-        <IconRun className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
-      ),
-    },
-
     {
       label: "Logout",
-      href: "/",
+      href: "/logout",
       icon: (
-        <IconArrowLeft className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
+        <IconArrowLeft className="text-neutral-700 dark:text-neutral-200 h-5 w-5 m-1 flex-shrink-0" />
       ),
     },
   ];
-
-  function startInstantMeeting() {
-    const roomName = "Room" + Math.random().toString(36).substring(2, 7);
-    const moderatorURL =
-      "https://meet.jit.si/roomName#config.prejoinPageEnabled=false&userInfo.displayName=Moderator";
-    fetch("https://rehab360.pythonanywhere.com/api/doctorCall", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        meeting_id: "roomName",
-      }),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        console.log("Success:", data);
-      })
-      .catch((error) => {
-        console.error("Error:", error);
-      });
-
-    // ... rest of the existing join meeting code ...
-    window.open(moderatorURL, "_blank");
-  }
 
   const [open, setOpen] = useState(false);
   return (
     <div className="h-screen">
       <Sidebar open={open} setOpen={setOpen}>
-        <SidebarBody className="justify-between gap-10">
+        <SidebarBody className=" justify-between gap-10">
           <div className="flex flex-col flex-1 overflow-y-auto overflow-x-hidden">
             {open ? <Logo /> : <LogoIcon />}
-            <div className="mt-8 flex flex-col gap-2">
+            <div className="mt-8 flex flex-col gap-3">
               {links.map((link, idx) => (
-                <SidebarLink key={idx} link={link} />
+                <SidebarLink
+                  key={idx}
+                  link={link}
+                  isActive={currentPath === link.href}
+                />
               ))}
             </div>
           </div>
           <div>
-            <SidebarLink
-              link={{
-                label: "Sahil Chabra",
-                href: "#",
-                icon: (
-                  <Image
-                    src="https://assets.aceternity.com/manu.png"
-                    className="h-7 w-7 flex-shrink-0 rounded-full"
-                    width={50}
-                    height={50}
-                    alt="Avatar"
-                  />
-                ),
-              }}
-            />
+            <SignOutButton>
+              <SidebarLink
+                link={{
+                  label: user?.fullName || "User",
+                  href: "#",
+                  icon: (
+                    <Image
+                      src={user?.imageUrl || "https://via.placeholder.com/50"}
+                      className="h-7 w-7 flex-shrink-0 rounded-full"
+                      width={50}
+                      height={50}
+                      alt="Avatar"
+                    />
+                  ),
+                }}
+              />
+            </SignOutButton>
           </div>
         </SidebarBody>
       </Sidebar>
     </div>
   );
 }
+
 export const Logo = () => {
   return (
     <Link
@@ -128,11 +121,12 @@ export const Logo = () => {
         animate={{ opacity: 1 }}
         className="font-medium text-black dark:text-white whitespace-pre"
       >
-        BioTrack360
+        MediVerse
       </motion.span>
     </Link>
   );
 };
+
 export const LogoIcon = () => {
   return (
     <Link

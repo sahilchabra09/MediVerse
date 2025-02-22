@@ -22,6 +22,7 @@
     "clsx": "^2.1.1",
     "formidable": "^3.5.2",
     "framer-motion": "^11.11.9",
+    "lucide-react": "^0.475.0",
     "mini-svg-data-uri": "^1.4.4",
     "next": "^14.2.23",
     "pdf-lib": "^1.17.1",

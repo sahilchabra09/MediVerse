@@ -1,27 +1,32 @@
 "use client";
-import { useState } from 'react';
-import axios from 'axios';
-import { useRouter } from 'next/navigation';
+import { useState } from "react";
+import { useUser } from "@clerk/nextjs";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/moving-border";
 
 const DoctorCreateDetails = () => {
+  const { user } = useUser();
   const router = useRouter();
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
-    address: '',
-    available_days: '',
-    available_time: '',
-    clerkid: '',
-    clinic_address: '',
+    address: "",
+    available_days: "",
+    available_time: "",
+    clerkid: user?.id || "",
+    clinic_address: "",
     consultation_fee: 0,
-    department: '',
-    email: '',
-    first_name: '',
-    last_name: '',
-    phone_number: '',
-    specialization: '',
-    years_of_experience: 0
+    department: "",
+    email: user?.emailAddresses[0]?.emailAddress || "",
+    first_name: user?.firstName || "",
+    hospital_id: 4, // Ensuring hospital_id is present
+    last_name: user?.lastName || "",
+    phone_number: "",
+    specialization: "",
+    years_of_experience: 0,
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({
       ...prevData,
@@ -31,189 +36,203 @@ const DoctorCreateDetails = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log("📤 Sending doctor details:", JSON.stringify(formData, null, 2));
 
     try {
-      const response = await fetch("https://your-api-endpoint.com/api/endpoint", {
-        method: 'POST',
+      const response = await fetch("https://mediverse-backend.onrender.com/doctor/post-details", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(formData),
       });
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Network response was not ok: ${errorText}`);
-      }
+      const responseData = await response.json();
+      console.log("✅ Server Response:", responseData);
 
-      const data = await response.json();
-      console.log("Success:", data);
-      // handle success (e.g., show a success message, redirect, etc.)
+      if (response.ok) {
+        console.log("🎉 Successfully submitted doctor details!");
+        router.push("/doc-dashboard");
+      } else {
+        console.error("❌ Failed to submit doctor details:", responseData);
+      }
     } catch (error) {
-      console.error("Error submitting form:", error);
-      // handle error (e.g., show an error message)
+      console.error("❌ Error submitting form:", error);
     }
   };
-  
+
   return (
-    <div className="min-h-screen bg-gray-100 py-8 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-2xl mx-auto bg-white p-8 rounded-lg shadow">
-        <h2 className="text-2xl font-bold mb-6 text-center">Complete Your Doctor Profile</h2>
-        
+    <div className="min-h-screen flex items-center justify-center p-6 bg-neutral-950 text-white">
+      <div className="max-w-4xl w-full bg-neutral-900 rounded-xl shadow-lg p-8 border border-neutral-700">
+        <h2 className="text-3xl font-bold text-center mb-6 text-neutral-100">
+          Complete Your Doctor Profile
+        </h2>
+
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* First Name */}
             <div>
-              <label className="block text-sm font-medium text-gray-700">First Name</label>
+              <label className="block text-sm font-medium text-neutral-200">First Name</label>
               <input
                 type="text"
                 name="first_name"
                 value={formData.first_name}
                 onChange={handleChange}
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-indigo-500 focus:outline-none focus:ring-indigo-500"
                 required
+                className="w-full px-4 py-3 bg-neutral-800 text-neutral-100 rounded-lg border border-neutral-600 focus:border-neutral-500 focus:ring-2 focus:ring-neutral-500"
               />
             </div>
 
+            {/* Last Name */}
             <div>
-              <label className="block text-sm font-medium text-gray-700">Last Name</label>
+              <label className="block text-sm font-medium text-neutral-200">Last Name</label>
               <input
                 type="text"
                 name="last_name"
                 value={formData.last_name}
                 onChange={handleChange}
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-indigo-500 focus:outline-none focus:ring-indigo-500"
                 required
+                className="w-full px-4 py-3 bg-neutral-800 text-neutral-100 rounded-lg border border-neutral-600 focus:border-neutral-500 focus:ring-2 focus:ring-neutral-500"
               />
             </div>
 
+            {/* Email */}
             <div>
-              <label className="block text-sm font-medium text-gray-700">Email</label>
+              <label className="block text-sm font-medium text-neutral-200">Email</label>
               <input
                 type="email"
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-indigo-500 focus:outline-none focus:ring-indigo-500"
                 required
+                className="w-full px-4 py-3 bg-neutral-800 text-neutral-100 rounded-lg border border-neutral-600 focus:border-neutral-500 focus:ring-2 focus:ring-neutral-500"
               />
             </div>
 
+            {/* Phone Number */}
             <div>
-              <label className="block text-sm font-medium text-gray-700">Phone Number</label>
+              <label className="block text-sm font-medium text-neutral-200">Phone Number</label>
               <input
                 type="tel"
                 name="phone_number"
                 value={formData.phone_number}
                 onChange={handleChange}
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-indigo-500 focus:outline-none focus:ring-indigo-500"
                 required
+                className="w-full px-4 py-3 bg-neutral-800 text-neutral-100 rounded-lg border border-neutral-600 focus:border-neutral-500 focus:ring-2 focus:ring-neutral-500"
               />
             </div>
 
+            {/* Address */}
             <div>
-              <label className="block text-sm font-medium text-gray-700">Address</label>
+              <label className="block text-sm font-medium text-neutral-200">Address</label>
               <input
                 type="text"
                 name="address"
                 value={formData.address}
                 onChange={handleChange}
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-indigo-500 focus:outline-none focus:ring-indigo-500"
                 required
+                className="w-full px-4 py-3 bg-neutral-800 text-neutral-100 rounded-lg border border-neutral-600 focus:border-neutral-500 focus:ring-2 focus:ring-neutral-500"
               />
             </div>
 
+            {/* Clinic Address */}
             <div>
-              <label className="block text-sm font-medium text-gray-700">Clinic Address</label>
+              <label className="block text-sm font-medium text-neutral-200">Clinic Address</label>
               <input
                 type="text"
                 name="clinic_address"
                 value={formData.clinic_address}
                 onChange={handleChange}
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-indigo-500 focus:outline-none focus:ring-indigo-500"
                 required
+                className="w-full px-4 py-3 bg-neutral-800 text-neutral-100 rounded-lg border border-neutral-600 focus:border-neutral-500 focus:ring-2 focus:ring-neutral-500"
               />
             </div>
 
+            {/* Specialization */}
             <div>
-              <label className="block text-sm font-medium text-gray-700">Available Days</label>
-              <input
-                type="text"
-                name="available_days"
-                value={formData.available_days}
-                onChange={handleChange}
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-indigo-500 focus:outline-none focus:ring-indigo-500"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Available Time</label>
-              <input
-                type="text"
-                name="available_time"
-                value={formData.available_time}
-                onChange={handleChange}
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-indigo-500 focus:outline-none focus:ring-indigo-500"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Department</label>
-              <input
-                type="text"
-                name="department"
-                value={formData.department}
-                onChange={handleChange}
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-indigo-500 focus:outline-none focus:ring-indigo-500"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Specialization</label>
+              <label className="block text-sm font-medium text-neutral-200">Specialization</label>
               <input
                 type="text"
                 name="specialization"
                 value={formData.specialization}
                 onChange={handleChange}
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-indigo-500 focus:outline-none focus:ring-indigo-500"
                 required
+                className="w-full px-4 py-3 bg-neutral-800 text-neutral-100 rounded-lg border border-neutral-600 focus:border-neutral-500 focus:ring-2 focus:ring-neutral-500"
               />
             </div>
 
+            {/* Department */}
             <div>
-              <label className="block text-sm font-medium text-gray-700">Consultation Fee</label>
+              <label className="block text-sm font-medium text-neutral-200">Department</label>
+              <input
+                type="text"
+                name="department"
+                value={formData.department}
+                onChange={handleChange}
+                required
+                className="w-full px-4 py-3 bg-neutral-800 text-neutral-100 rounded-lg border border-neutral-600 focus:border-neutral-500 focus:ring-2 focus:ring-neutral-500"
+              />
+            </div>
+
+            {/* Consultation Fee */}
+            <div>
+              <label className="block text-sm font-medium text-neutral-200">Consultation Fee</label>
               <input
                 type="number"
                 name="consultation_fee"
                 value={formData.consultation_fee}
                 onChange={handleChange}
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-indigo-500 focus:outline-none focus:ring-indigo-500"
                 required
+                className="w-full px-4 py-3 bg-neutral-800 text-neutral-100 rounded-lg border border-neutral-600 focus:border-neutral-500 focus:ring-2 focus:ring-neutral-500"
               />
             </div>
 
+            {/* Years of Experience */}
             <div>
-              <label className="block text-sm font-medium text-gray-700">Years of Experience</label>
+              <label className="block text-sm font-medium text-neutral-200">Years of Experience</label>
               <input
                 type="number"
                 name="years_of_experience"
                 value={formData.years_of_experience}
                 onChange={handleChange}
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-indigo-500 focus:outline-none focus:ring-indigo-500"
                 required
+                className="w-full px-4 py-3 bg-neutral-800 text-neutral-100 rounded-lg border border-neutral-600 focus:border-neutral-500 focus:ring-2 focus:ring-neutral-500"
+              />
+            </div>
+                      {/* Available Days */}
+                      <div>
+              <label className="block text-sm font-medium text-neutral-200">Available Days</label>
+              <input
+                type="text"
+                name="available_days"
+                placeholder={formData.available_days}
+                onChange={handleChange}
+                required
+                className="w-full px-4 py-3 bg-neutral-800 text-neutral-100 rounded-lg border border-neutral-600 focus:border-neutral-500 focus:ring-2 focus:ring-neutral-500"
+              />
+            </div>
+
+            {/* Available Time */}
+            <div>
+              <label className="block text-sm font-medium text-neutral-200">Available Time</label>
+              <input
+                type="text"
+                name="available_time"
+                placeholder={formData.available_time}
+                onChange={handleChange}
+                required
+                className="w-full px-4 py-3 bg-neutral-800 text-neutral-100 rounded-lg border border-neutral-600 focus:border-neutral-500 focus:ring-2 focus:ring-neutral-500"
               />
             </div>
           </div>
 
+
+          {/* Submit Button */}
           <div className="flex justify-center">
-            <button
-              type="submit"
-              className="bg-indigo-600 text-white px-6 py-2 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-            >
-              Submit Details
-            </button>
+           
+          <Button type="submit" disabled={false} className=" text-white bg-neutral-950 px-6 py-3 rounded-lg hover:bg-black transition-all duration-300">
+              {isSubmitting ? "Submitting..." : "Submit Details"}
+            </Button>
           </div>
         </form>
       </div>

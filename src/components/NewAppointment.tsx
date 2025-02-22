@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { useUser } from "@clerk/nextjs";
 
+
 interface NewAppointmentProps {
   doctorClerkId: string;
+  onClose: () => void; // Add this
 }
 
+// Replace all setShowPopup(false) calls with onClose()
 const NewAppointment: React.FC<NewAppointmentProps> = ({ doctorClerkId }) => {
   const { user } = useUser();
   const [appointmentDate, setAppointmentDate] = useState("");

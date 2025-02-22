@@ -27,7 +27,7 @@ export function HeroSection() {
           Your Health, <br /> Our Technology <br /> Smarter Care for a Healthier
           Future
         </motion.p>
-        <Link href="/UserTypeSelection">
+        <Link href="/user-type-selection">
           <Button
             borderRadius="1.75rem"
             className="  bg-white dark:bg-slate-900 text-black dark:text-white border-neutral-200 dark:border-slate-800"
