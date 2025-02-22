@@ -156,57 +156,17 @@ useEffect(() => {
 
       console.log('Fetching from URLs:', urls);
 
-      const [detailsResponse, reportsResponse, appointmentsResponse, prescriptionsResponse] = await Promise.all([
+      const [detailsResponse, reportsResponse, appointmentsResponse, ] = await Promise.all([
         fetch(urls[0]),
         fetch(urls[1]),
         fetch(urls[2])
       ]);
-      const prescriptionsData = await prescriptionsResponse.json();
-      setPrescriptions(prescriptionsData || []);
 
       console.log('Response statuses:', {
         details: detailsResponse.status,
         reports: reportsResponse.status,
         appointments: appointmentsResponse.status
       });
-
-      const handlePrescriptionSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setFormLoading(true);
-        setFormError('');
-
-        try {
-          const response = await fetch('https://mediverse-backend.onrender.com/prescription/add-prescription', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(prescriptionFormData)
-          });
-      
-          if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.message || 'Failed to create prescription');
-          }
- // Refresh prescriptions
- const newPrescriptions = await fetchPrescriptions();
- setPrescriptions(newPrescriptions);
- 
- setShowPrescriptionForm(false);
- alert('Prescription added successfully!');
-} catch (err: any) {
- setFormError(err.message);
-} finally {
- setFormLoading(false);
-}
-};      
-
-
-const fetchPrescriptions = async () => {
-  const response = await fetch(`https://mediverse-backend.onrender.com/prescription/get-prescriptions/${encodeURIComponent(clerkid)}`);
-  if (!response.ok) throw new Error('Failed to fetch prescriptions');
-  return await response.json();
-};
 
       if (!detailsResponse.ok || !reportsResponse.ok || !appointmentsResponse.ok) {
         console.error('One or more requests failed:', {
@@ -374,98 +334,7 @@ const fetchPrescriptions = async () => {
       </div>
     </div>
   )}
-// Add this new section to the return statement
-<div className="bg-white dark:bg-gray-900 rounded-lg shadow-lg p-6 mb-8">
-  <div className="flex justify-between items-center mb-6">
-    <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
-      Prescriptions
-    </h2>
-    <Button
-      onClick={() => setShowPrescriptionForm(true)}
-      className="p-2.5 bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors border-neutral-200 dark:border-gray-700"
-    >
-      + Add Prescription
-    </Button>
-  </div>
 
-  {prescriptions.length === 0 ? (
-    <div className="text-center py-6 text-gray-500 dark:text-gray-400">
-      No prescriptions found
-    </div>
-  ) : (
-    <div className="space-y-4">
-      {prescriptions.map((prescription) => (
-        <div 
-          key={prescription.id}
-          className="border-l-4 border-purple-500 pl-4 bg-gray-50 dark:bg-gray-950 p-4 rounded-lg"
-        >
-          <div className="flex justify-between items-start">
-            <div>
-              <p className="text-sm font-semibold text-gray-600 dark:text-gray-300">
-                {new Date(prescription.created_at).toLocaleDateString('en-US', {
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric'
-                })}
-              </p>
-              <p className="mt-2 text-gray-800 dark:text-gray-200 whitespace-pre-wrap">
-                {prescription.prescription_text}
-              </p>
-            </div>
-          </div>
-        </div>
-      ))}
-    </div>
-  )}
-</div>
-
-// Add prescription form modal
-{showPrescriptionForm && (
-  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-    <div className="bg-white dark:bg-gray-900 rounded-lg shadow-xl p-6 w-full max-w-md">
-      <h3 className="text-xl font-bold mb-4 dark:text-gray-100">New Prescription</h3>
-      
-      <form onSubmit={handlePrescriptionSubmit} className="space-y-4">
-        <div>
-          <label className="block text-sm font-medium mb-1 dark:text-gray-300">
-            Prescription Details
-          </label>
-          <textarea
-            required
-            className="w-full p-2 rounded border border-gray-300 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100"
-            rows={5}
-            value={prescriptionFormData.prescription_text}
-            onChange={(e) => setPrescriptionFormData({
-              ...prescriptionFormData,
-              prescription_text: e.target.value
-            })}
-          />
-        </div>
-
-        {formError && (
-          <p className="text-red-500 text-sm">{formError}</p>
-        )}
-
-        <div className="flex justify-end gap-3 mt-6">
-          <Button
-            type="button"
-            onClick={() => setShowPrescriptionForm(false)}
-            className="px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 transition-colors"
-          >
-            Cancel
-          </Button>
-          <Button
-            type="submit"
-            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white transition-colors"
-            disabled={formLoading}
-          >
-            {formLoading ? 'Creating...' : 'Create Prescription'}
-          </Button>
-        </div>
-      </form>
-    </div>
-  </div>
-)}
 <div className="bg-white dark:bg-gray-900 rounded-lg shadow-lg p-6 mb-8">
   <h2 className="text-2xl font-bold mb-6 text-gray-800 dark:text-gray-100">
     Appointment History
